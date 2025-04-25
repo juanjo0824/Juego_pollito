@@ -30,16 +30,31 @@ clock = pygame.time.Clock()
 # Pollito
 pollito = pygame.Rect(380, 540, 40, 40)
 vidas = 3
-
+puntos = 0
 # Crear coches (2 carriles por calle)
-coches_calle1_izq = [pygame.Rect(random.randint(0, ANCHO), 170, 60, 30) for _ in range(3)]
-coches_calle1_der = [pygame.Rect(random.randint(0, ANCHO), 210, 60, 30) for _ in range(3)]
-coches_calle2_izq = [pygame.Rect(random.randint(0, ANCHO), 370, 60, 30) for _ in range(3)]
-coches_calle2_der = [pygame.Rect(random.randint(0, ANCHO), 410, 60, 30) for _ in range(3)]
+def generar_coches(y, sentido='izq', cantidad=3, separacion=200):
+    coches = []
+    for i in range(cantidad):
+        x = i * separacion
+        if sentido == 'der':
+            x = -i * separacion  # Aparecen fuera de la pantalla y se mueven hacia la derecha
+        coches.append(pygame.Rect(x, y, 60, 30))
+    return coches
+
+coches_calle1_izq = generar_coches(170, 'izq') 
+coches_calle1_der = generar_coches(210, 'der')
+coches_calle2_izq = generar_coches(370, 'izq') 
+coches_calle2_der = generar_coches(410, 'der')
+
+# Función para mostrar los puntos
+def mostrar_puntos():
+    fuente = pygame.font.SysFont(None, 40)
+    texto_puntos = fuente.render(f"Puntos: {puntos}", True, NEGRO)
+    ventana.blit(texto_puntos, (650, 10)) # Los ponemos en (10,10) para que no se pierda
 
 # Velocidades
-vel_izq = [random.randint(3, 5) for _ in range(6)]
-vel_der = [random.randint(3, 5) for _ in range(6)]
+vel_izq = [random.randint(5,5) for _ in range(6)]
+vel_der = [random.randint(5, 5) for _ in range(6)]
 
 # Mostrar mensaje
 def mostrar_mensaje(texto):
@@ -108,6 +123,7 @@ while jugando:
 
     # ¿Ganó?
     if pollito.top <= 60:
+        puntos+= 1
         mostrar_mensaje("¡El pollito llegó a casa!")
         pollito.x, pollito.y = 380, 540
 
@@ -117,11 +133,11 @@ while jugando:
     # Calles
     pygame.draw.rect(ventana, GRIS, (0, 160, ANCHO, 100))   # Calle 1
     pygame.draw.line(ventana, GRIS_CLARO, (0, 190), (ANCHO, 190), 4)
-    dibujar_lineas(185)
+    dibujar_lineas(210)
 
     pygame.draw.rect(ventana, GRIS, (0, 360, ANCHO, 100))   # Calle 2
     pygame.draw.line(ventana, GRIS_CLARO, (0, 390), (ANCHO, 390), 4)
-    dibujar_lineas(385)
+    dibujar_lineas(410)
 
     # Zona verde entre calles
     pygame.draw.rect(ventana, VERDE, (0, 260, ANCHO, 100))
@@ -145,6 +161,10 @@ while jugando:
     fuente = pygame.font.SysFont(None, 30)
     texto_vidas = fuente.render(f"Vidas: {vidas}", True, NEGRO)
     ventana.blit(texto_vidas, (10, 10))
+
+    # Mostrar puntos
+    mostrar_puntos()
+
 
     pygame.display.flip()
     clock.tick(FPS)
